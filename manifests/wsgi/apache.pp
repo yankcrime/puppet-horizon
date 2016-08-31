@@ -190,15 +190,6 @@ class horizon::wsgi::apache (
     require => Package['horizon'],
   }
 
-  file { "${::horizon::params::logdir}/horizon.log":
-    ensure  => file,
-    owner   => $unix_user,
-    group   => $unix_group,
-    before  => Service['httpd'],
-    mode    => '0640',
-    require => [ File[$::horizon::params::logdir], Package['horizon'] ],
-  }
-
   $script_url = $root_url ? {
     ''      => '/',
     default => $root_url,
