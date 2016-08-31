@@ -79,6 +79,9 @@
 #    (optional) The base URL used to contruct horizon web addresses.
 #    Defaults to '/dashboard' or '/horizon' depending OS
 #
+#  [*access_log*]
+#  [*error_log*]
+#
 class horizon::wsgi::apache (
   $bind_address        = undef,
   $fqdn                = undef,
@@ -99,6 +102,10 @@ class horizon::wsgi::apache (
   $extra_params        = {},
   $redirect_type       = 'permanent',
   $root_url            = $::horizon::params::root_url,
+  $access_log          = 'horizon_access.log',
+  $error_log           = 'horizon_error.log',
+  $ssl_access_log      = 'horizon_ssl_access.log',
+  $ssl_error_log       = 'horizon_ssl_error.log',
 ) inherits horizon::params {
 
   include ::apache
@@ -201,8 +208,8 @@ class horizon::wsgi::apache (
     servername                  => $servername,
     serveraliases               => os_any2array($final_server_aliases),
     docroot                     => '/var/www/',
-    access_log_file             => 'horizon_access.log',
-    error_log_file              => 'horizon_error.log',
+    access_log_file             => $access_log,
+    error_log_file              => $error_log,
     priority                    => $priority,
     aliases                     => [{
       alias => "${root_url}/static",
@@ -240,8 +247,8 @@ class horizon::wsgi::apache (
     redirectmatch_dest   => $redirect_url,
   }))
   ensure_resource('apache::vhost', $vhost_ssl_conf_name, merge ($default_vhost_conf, $extra_params, {
-    access_log_file      => 'horizon_ssl_access.log',
-    error_log_file       => 'horizon_ssl_error.log',
+    access_log_file      => $ssl_access_log,
+    error_log_file       => $ssl_error_log,
     priority             => $priority,
     ssl                  => true,
     port                 => $https_port,
